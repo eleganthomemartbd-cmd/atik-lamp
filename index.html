@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Atik Lamp</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+min-height:100vh;
+background:#09080d;
+color:white;
+font-family:Arial,sans-serif;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:15px
+}
+
+.app{
+width:100%;
+max-width:520px;
+min-height:700px;
+padding:28px 20px;
+background:#17151e;
+border:1px solid #4b4655;
+box-shadow:0 25px 70px #000;
+position:relative;
+overflow:hidden
+}
+
+.title{
+text-align:center;
+color:#62ff83;
+font-size:clamp(27px,7vw,37px);
+font-weight:bold;
+margin-bottom:7px
+}
+
+.sub{
+text-align:center;
+font-size:21px;
+margin-bottom:22px
+}
+
+.stage{
+height:390px;
+background:#0d0c11;
+border:1px solid #69636f;
+position:relative;
+overflow:hidden
+}
+
+.glow{
+position:absolute;
+width:420px;
+height:420px;
+left:50%;
+top:40%;
+transform:translate(-50%,-50%);
+border-radius:50%;
+background:radial-gradient(circle,#ffe79a88,#ffb83222,transparent 70%);
+opacity:0;
+transition:.6s
+}
+
+.on .glow{opacity:1}
+
+.lamp{
+position:absolute;
+width:170px;
+height:215px;
+left:50%;
+top:46%;
+transform:translate(-50%,-50%)
+}
+
+.shade{
+position:absolute;
+width:135px;
+height:60px;
+left:18px;
+border-radius:70% 70% 40% 40%;
+background:#eeeae0;
+transition:.5s
+}
+
+.on .shade{
+background:#fff9d7;
+box-shadow:
+0 0 20px #ffe9a0,
+0 0 55px #ffd35f,
+0 0 110px #ffb92888
+}
+
+.stem{
+position:absolute;
+width:13px;
+height:115px;
+left:79px;
+top:45px;
+background:#e9e7df;
+border-radius:10px
+}
+
+.base{
+position:absolute;
+width:82px;
+height:13px;
+left:44px;
+top:155px;
+background:#e9e7df;
+border-radius:10px
+}
+
+.string{
+position:absolute;
+width:2px;
+height:62px;
+left:98px;
+top:100px;
+background:#c59a6d;
+cursor:pointer
+}
+
+.string:after{
+content:"";
+position:absolute;
+width:11px;
+height:11px;
+left:-4px;
+bottom:-6px;
+border-radius:50%;
+background:#dfa66b;
+box-shadow:0 0 10px #dfa66b
+}
+
+.top{
+position:absolute;
+top:12px;
+left:12px;
+right:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+z-index:5
+}
+
+.badge{
+font-size:12px;
+background:#0009;
+padding:7px 11px;
+border-radius:20px
+}
+
+.logout{
+width:auto;
+padding:7px 11px;
+background:#302a38;
+color:white;
+border:1px solid #51495a;
+border-radius:9px
+}
+
+.status{
+position:absolute;
+top:55px;
+left:50%;
+transform:translateX(-50%);
+z-index:5;
+font-size:12px;
+background:#0009;
+padding:6px 11px;
+border-radius:20px;
+color:#999
+}
+
+.on .status{color:#62ff83}
+
+.controls{
+position:absolute;
+bottom:15px;
+left:50%;
+transform:translateX(-50%);
+width:88%;
+z-index:6
+}
+
+.toggle{
+width:100%;
+padding:13px;
+border:0;
+border-radius:10px;
+background:linear-gradient(135deg,#884cff,#c568ff);
+color:white;
+font-weight:bold;
+cursor:pointer
+}
+
+.footer{
+text-align:center;
+color:#888;
+font-size:12px;
+margin-top:17px
+}
+
+.creator{
+color:#62ff83;
+font-weight:bold;
+font-size:15px;
+margin-top:6px
+}
+
+/* LOGIN */
+
+.auth{
+position:absolute;
+inset:0;
+z-index:50;
+background:#0b0a0f;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:25px;
+transition:.4s
+}
+
+.auth.hide{
+opacity:0;
+visibility:hidden;
+pointer-events:none
+}
+
+.box{
+width:100%;
+max-width:370px;
+padding:25px;
+background:#191620;
+border:1px solid #554d60;
+border-radius:20px;
+box-shadow:0 20px 60px #000
+}
+
+.logo{
+text-align:center;
+font-size:50px
+}
+
+.box h2{
+text-align:center;
+margin:5px 0 8px
+}
+
+.desc{
+text-align:center;
+color:#999;
+font-size:13px;
+margin-bottom:18px
+}
+
+.field{
+margin-bottom:13px
+}
+
+.field label{
+display:block;
+font-size:13px;
+color:#ddd;
+margin-bottom:6px
+}
+
+.field input{
+width:100%;
+padding:12px;
+border-radius:9px;
+border:1px solid #514b59;
+background:#0d0c11;
+color:white;
+outline:0
+}
+
+.field input:focus{
+border-color:#a968ff
+}
+
+.btn{
+width:100%;
+padding:12px;
+border:0;
+border-radius:9px;
+color:white;
+font-weight:bold;
+cursor:pointer
+}
+
+.primary{
+background:linear-gradient(135deg,#884cff,#c568ff)
+}
+
+.secondary{
+margin-top:10px;
+background:#29242f;
+border:1px solid #51495a
+}
+
+.link{
+text-align:center;
+color:#bd7cff;
+font-size:13px;
+margin-top:13px;
+cursor:pointer
+}
+
+.err{
+display:none;
+color:#ff8585;
+background:#ff3c3c18;
+padding:9px;
+border-radius:8px;
+font-size:12px;
+margin-bottom:10px;
+text-align:center
+}
+
+@media(max-width:500px){
+.stage{height:360px}
+.app{min-height:670px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app" id="app">
+
+<!-- LOGIN -->
+
+<div class="auth" id="auth">
+
+<div class="box">
+
+<div class="logo">💡</div>
+
+<div id="loginView">
+
+<h2>Welcome Back</h2>
+
+<div class="desc">
+Login to enter Atik Lamp
+</div>
+
+<div class="err" id="loginErr"></div>
+
+<form id="loginForm">
+
+<div class="field">
+<label>Email</label>
+
+<input
+id="loginEmail"
+type="email"
+placeholder="your@gmail.com"
+required>
+</div>
+
+<div class="field">
+<label>Password</label>
+
+<input
+id="loginPass"
+type="password"
+placeholder="Your password"
+required>
+</div>
+
+<button class="btn primary">
+Login
+</button>
+
+</form>
+
+<div class="link" id="forgot">
+Forgot password?
+</div>
+
+<button
+class="btn secondary"
+id="goRegister"
+type="button">
+
+Create New Account
+
+</button>
+
+</div>
+
+
+<!-- REGISTER -->
+
+<div
+id="registerView"
+style="display:none">
+
+<h2>Create Account</h2>
+
+<div class="desc">
+Create your Atik Lamp account
+</div>
+
+<div
+class="err"
+id="registerErr">
+</div>
+
+<form id="registerForm">
+
+<div class="field">
+
+<label>Your Name</label>
+
+<input
+id="regName"
+maxlength="30"
+placeholder="Your name"
+required>
+
+</div>
+
+<div class="field">
+
+<label>Email</label>
+
+<input
+id="regEmail"
+type="email"
+placeholder="your@gmail.com"
+required>
+
+</div>
+
+<div class="field">
+
+<label>Password</label>
+
+<input
+id="regPass"
+type="password"
+minlength="6"
+placeholder="Minimum 6 characters"
+required>
+
+</div>
+
+<div class="field">
+
+<label>Confirm Password</label>
+
+<input
+id="regConfirm"
+type="password"
+placeholder="Repeat password"
+required>
+
+</div>
+
+<button class="btn primary">
+Create Account
+</button>
+
+</form>
+
+<button
+class="btn secondary"
+id="goLogin"
+type="button">
+
+Back to Login
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- WEBSITE -->
+
+<div class="title">
+Login Form Lamp Animate
+</div>
+
+<div class="sub">
+Using HTML CSS JS
+</div>
+
+<div class="stage">
+
+<div class="top">
+
+<div
+class="badge"
+id="user">
+
+Not logged in
+
+</div>
+
+<button
+class="logout"
+id="logout">
+
+Logout
+
+</button>
+
+</div>
+
+<div
+class="status"
+id="status">
+
+Lamp OFF
+
+</div>
+
+<div class="glow"></div>
+
+<div class="lamp">
+
+<div class="shade"></div>
+
+<div class="stem"></div>
+
+<div class="base"></div>
+
+<div
+class="string"
+id="string">
+</div>
+
+</div>
+
+<div class="controls">
+
+<button
+class="toggle"
+id="toggle">
+
+Turn Lamp On
+
+</button>
+
+</div>
+
+</div>
+
+<div class="footer">
+
+Everyone controls the same lamp 💡
+
+<div class="creator">
+
+Created by Atik ❤️
+
+</div>
+
+</div>
+
+</div>
+
+
+<script type="module">
+
+import {
+initializeApp
+}
+from
+"https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+
+
+import {
+getAuth,
+createUserWithEmailAndPassword,
+signInWithEmailAndPassword,
+onAuthStateChanged,
+signOut,
+sendPasswordResetEmail
+}
+from
+"https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
+
+import {
+getDatabase,
+ref,
+set,
+onValue
+}
+from
+"https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+
+
+/* FIREBASE CONFIG */
+
+const firebaseConfig = {
+
+apiKey:
+"AIzaSyDfr7IjNrILysYlEjXhGHQ18FJyKEbqez4",
+
+authDomain:
+"atik-lamp.firebaseapp.com",
+
+databaseURL:
+"https://atik-lamp-default-rtdb.firebaseio.com",
+
+projectId:
+"atik-lamp",
+
+storageBucket:
+"atik-lamp.firebasestorage.app",
+
+messagingSenderId:
+"812980538364",
+
+appId:
+"1:812980538364:web:51b9376fc67bde2cc18079"
+
+};
+
+
+/* START FIREBASE */
+
+const firebaseApp =
+initializeApp(firebaseConfig);
+
+const auth =
+getAuth(firebaseApp);
+
+const db =
+getDatabase(firebaseApp);
+
+
+/* ELEMENTS */
+
+const authBox =
+document.getElementById("auth");
+
+const loginView =
+document.getElementById("loginView");
+
+const registerView =
+document.getElementById("registerView");
+
+const appBox =
+document.getElementById("app");
+
+const status =
+document.getElementById("status");
+
+const userBox =
+document.getElementById("user");
+
+const toggle =
+document.getElementById("toggle");
+
+const string =
+document.getElementById("string");
+
+
+let lampOn = false;
+
+
+/* ERROR */
+
+function showError(element,message){
+
+element.textContent =
+message;
+
+element.style.display =
+"block";
+
+}
+
+
+function hideError(element){
+
+element.style.display =
+"none";
+
+}
+
+
+/* SWITCH LOGIN */
+
+document
+.getElementById("goLogin")
+.onclick = () => {
+
+registerView.style.display =
+"none";
+
+loginView.style.display =
+"block";
+
+};
+
+
+/* SWITCH REGISTER */
+
+document
+.getElementById("goRegister")
+.onclick = () => {
+
+loginView.style.display =
+"none";
+
+registerView.style.display =
+"block";
+
+};
+
+
+/* CREATE ACCOUNT */
+
+document
+.getElementById("registerForm")
+.onsubmit = async (e) => {
+
+e.preventDefault();
+
+hideError(
+document.getElementById("registerErr")
+);
+
+
+const name =
+document
+.getElementById("regName")
+.value
+.trim();
+
+const email =
+document
+.getElementById("regEmail")
+.value
+.trim();
+
+const password =
+document
+.getElementById("regPass")
+.value;
+
+const confirm =
+document
+.getElementById("regConfirm")
+.value;
+
+
+if(password !== confirm){
+
+showError(
+document.getElementById("registerErr"),
+"Passwords do not match."
+);
+
+return;
+
+}
+
+
+try{
+
+const result =
+await createUserWithEmailAndPassword(
+auth,
+email,
+password
+);
+
+
+await set(
+
+ref(
+db,
+"users/" +
+result.user.uid
+),
+
+{
+name:name,
+email:email
+}
+
+);
+
+
+alert(
+"Account created successfully!"
+);
+
+}
+
+catch(error){
+
+console.log(error);
+
+showError(
+document.getElementById("registerErr"),
+"Could not create account. Check your information."
+);
+
+}
+
+};
+
+
+/* LOGIN */
+
+document
+.getElementById("loginForm")
+.onsubmit = async (e) => {
+
+e.preventDefault();
+
+hideError(
+document.getElementById("loginErr")
+);
+
+
+const email =
+document
+.getElementById("loginEmail")
+.value
+.trim();
+
+const password =
+document
+.getElementById("loginPass")
+.value;
+
+
+try{
+
+await signInWithEmailAndPassword(
+auth,
+email,
+password
+);
+
+}
+
+catch(error){
+
+showError(
+document.getElementById("loginErr"),
+"Email or password is incorrect."
+);
+
+}
+
+};
+
+
+/* PASSWORD RESET */
+
+document
+.getElementById("forgot")
+.onclick = async () => {
+
+const email =
+document
+.getElementById("loginEmail")
+.value
+.trim();
+
+
+if(!email){
+
+alert(
+"First enter your email."
+);
+
+return;
+
+}
+
+
+try{
+
+await sendPasswordResetEmail(
+auth,
+email
+);
+
+alert(
+"Password reset email sent."
+);
+
+}
+
+catch(error){
+
+alert(
+"Could not send reset email."
+);
+
+}
+
+};
+
+
+/* AUTH STATE */
+
+onAuthStateChanged(
+auth,
+user => {
+
+if(!user){
+
+authBox.classList.remove("hide");
+
+return;
+
+}
+
+
+authBox.classList.add("hide");
+
+
+/* USER NAME */
+
+onValue(
+
+ref(
+db,
+"users/" +
+user.uid
+),
+
+snapshot => {
+
+const data =
+snapshot.val();
+
+
+userBox.textContent =
+"👤 " +
+(data?.name || user.email);
+
+}
+
+);
+
+
+/* SHARED LAMP */
+
+onValue(
+
+ref(
+db,
+"lamp/on"
+),
+
+snapshot => {
+
+lampOn =
+snapshot.val() === true;
+
+
+appBox.classList.toggle(
+"on",
+lampOn
+);
+
+
+toggle.textContent =
+lampOn
+? "Turn Lamp Off"
+: "Turn Lamp On";
+
+
+status.textContent =
+lampOn
+? "● Lamp ON"
+: "● Lamp OFF";
+
+}
+
+);
+
+}
+
+);
+
+
+/* CHANGE LAMP */
+
+async function changeLamp(){
+
+try{
+
+await set(
+
+ref(
+db,
+"lamp/on"
+),
+
+!lampOn
+
+);
+
+}
+
+catch(error){
+
+alert(
+"Could not change lamp."
+);
+
+}
+
+}
+
+
+toggle.onclick =
+changeLamp;
+
+string.onclick =
+changeLamp;
+
+
+/* LOGOUT */
+
+document
+.getElementById("logout")
+.onclick = () => {
+
+signOut(auth);
+
+};
+
+</script>
+
+</body>
+</html>
