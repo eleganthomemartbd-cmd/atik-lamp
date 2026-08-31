@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Atik Smart Lamp</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0
+}
+
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 50% 0%,#30245a 0%,#100e18 35%,#07070b 100%);
+  color:#fff;
+  font-family:Arial,sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:15px;
+}
+
+.app{
+  width:100%;
+  max-width:480px;
+  min-height:760px;
+  background:rgba(20,18,30,.82);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:28px;
+  padding:22px;
+  box-shadow:0 30px 100px #000;
+  backdrop-filter:blur(20px);
+  position:relative;
+  overflow:hidden;
+}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.brand{
+  font-size:20px;
+  font-weight:bold;
+  letter-spacing:.5px;
+}
+
+.brand span{
+  color:#a66cff;
+}
+
+.user{
+  font-size:12px;
+  color:#ddd;
+  background:#ffffff0d;
+  border:1px solid #ffffff12;
+  padding:8px 12px;
+  border-radius:20px;
+}
+
+.hero{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.hero h1{
+  font-size:32px;
+  margin-bottom:7px;
+}
+
+.hero p{
+  color:#96919f;
+  font-size:13px;
+}
+
+.room{
+  height:360px;
+  position:relative;
+  overflow:hidden;
+  border-radius:24px;
+  background:
+    linear-gradient(#111019,#08080c);
+  border:1px solid #ffffff12;
+}
+
+.room-glow{
+  position:absolute;
+  width:470px;
+  height:470px;
+  left:50%;
+  top:48%;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  opacity:0;
+  transition:.7s;
+  filter:blur(10px);
+}
+
+.on .room-glow{
+  opacity:.65;
+}
+
+.lamp{
+  position:absolute;
+  width:190px;
+  height:230px;
+  left:50%;
+  top:46%;
+  transform:translate(-50%,-50%);
+}
+
+.shade{
+  position:absolute;
+  width:150px;
+  height:65px;
+  left:20px;
+  top:0;
+  border-radius:80% 80% 45% 45%;
+  background:#d8d6d0;
+  transition:.5s;
+}
+
+.on .shade{
+  box-shadow:
+    0 0 20px var(--lamp),
+    0 0 50px var(--lamp),
+    0 0 100px var(--lamp);
+}
+
+.stem{
+  position:absolute;
+  width:13px;
+  height:120px;
+  left:88px;
+  top:48px;
+  background:#ddd;
+  border-radius:10px;
+}
+
+.base{
+  position:absolute;
+  width:90px;
+  height:14px;
+  left:49px;
+  top:160px;
+  background:#ddd;
+  border-radius:20px;
+}
+
+.pull{
+  position:absolute;
+  width:2px;
+  height:62px;
+  left:108px;
+  top:90px;
+  background:#d3a06e;
+  cursor:pointer;
+}
+
+.pull:after{
+  content:"";
+  position:absolute;
+  width:12px;
+  height:12px;
+  left:-5px;
+  bottom:-6px;
+  border-radius:50%;
+  background:#e4aa72;
+  box-shadow:0 0 12px #e4aa72;
+}
+
+.status{
+  position:absolute;
+  top:16px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:8px 15px;
+  border-radius:20px;
+  background:#0009;
+  color:#999;
+  font-size:12px;
+  z-index:5;
+}
+
+.on .status{
+  color:var(--lamp);
+}
+
+.controls{
+  margin-top:20px;
+  padding:18px;
+  border-radius:20px;
+  background:#ffffff08;
+  border:1px solid #ffffff0d;
+}
+
+.power{
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:14px;
+  color:white;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+  background:linear-gradient(135deg,#7b43ff,#bb62ff);
+  box-shadow:0 10px 30px #8b4cff35;
+}
+
+.power:active{
+  transform:scale(.98);
+}
+
+.control-title{
+  margin-top:18px;
+  margin-bottom:9px;
+  font-size:13px;
+  color:#aaa;
+}
+
+.colors{
+  display:flex;
+  gap:10px;
+}
+
+.color{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  border:3px solid transparent;
+  cursor:pointer;
+}
+
+.color.active{
+  border-color:white;
+  box-shadow:0 0 15px #fff8;
+}
+
+.yellow{background:#ffd45c}
+.white{background:#fff}
+.blue{background:#5ca8ff}
+.purple{background:#b46cff}
+.red{background:#ff6363}
+.green{background:#62ff9b}
+
+input[type=range]{
+  width:100%;
+  accent-color:#a96cff;
+}
+
+.info{
+  display:flex;
+  justify-content:space-between;
+  margin-top:15px;
+  color:#888;
+  font-size:11px;
+}
+
+.footer{
+  text-align:center;
+  margin-top:20px;
+  color:#777;
+  font-size:11px;
+}
+
+.creator{
+  color:#a96cff;
+  font-weight:bold;
+  font-size:14px;
+  margin-top:5px;
+}
+
+/* LOGIN */
+
+.auth{
+  position:absolute;
+  inset:0;
+  z-index:100;
+  background:#09080e;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:25px;
+  transition:.5s;
+}
+
+.auth.hide{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+
+.auth-box{
+  width:100%;
+  max-width:360px;
+  padding:27px;
+  border-radius:24px;
+  background:#171520;
+  border:1px solid #ffffff14;
+  box-shadow:0 25px 70px #000;
+}
+
+.logo{
+  text-align:center;
+  font-size:55px;
+  margin-bottom:5px;
+}
+
+.auth-box h2{
+  text-align:center;
+  margin-bottom:7px;
+}
+
+.auth-desc{
+  text-align:center;
+  color:#888;
+  font-size:12px;
+  margin-bottom:20px;
+}
+
+.input{
+  margin-bottom:13px;
+}
+
+.input label{
+  display:block;
+  font-size:12px;
+  color:#bbb;
+  margin-bottom:6px;
+}
+
+.input input{
+  width:100%;
+  padding:13px;
+  border-radius:11px;
+  border:1px solid #ffffff12;
+  background:#0c0b10;
+  color:#fff;
+  outline:none;
+}
+
+.input input:focus{
+  border-color:#a96cff;
+}
+
+.auth-btn{
+  width:100%;
+  padding:13px;
+  border:0;
+  border-radius:11px;
+  background:linear-gradient(135deg,#7b43ff,#bd63ff);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.switch{
+  text-align:center;
+  color:#ae72ff;
+  margin-top:15px;
+  font-size:12px;
+  cursor:pointer;
+}
+
+.error{
+  display:none;
+  color:#ff7777;
+  font-size:11px;
+  padding:8px;
+  background:#ff000012;
+  border-radius:8px;
+  margin-bottom:10px;
+  text-align:center;
+}
+
+.logout{
+  margin-top:12px;
+  width:100%;
+  padding:10px;
+  border:1px solid #ffffff12;
+  border-radius:10px;
+  background:#ffffff08;
+  color:#aaa;
+}
+
+@media(max-width:450px){
+  .app{
+    min-height:730px;
+    padding:18px;
+  }
+
+  .room{
+    height:340px;
+  }
+
+  .hero h1{
+    font-size:28px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app" id="app">
+
+<!-- LOGIN -->
+<div class="auth" id="auth">
+
+<div class="auth-box">
+
+<div class="logo">💡</div>
+
+<div id="loginPage">
+
+<h2>Atik Smart Lamp</h2>
+
+<div class="auth-desc">
+Login to control the lamp
+</div>
+
+<div class="error" id="loginError"></div>
+
+<form id="loginForm">
+
+<div class="input">
+<label>Email</label>
+<input id="loginEmail" type="email" placeholder="your@gmail.com" required>
+</div>
+
+<div class="input">
+<label>Password</label>
+<input id="loginPassword" type="password" placeholder="Password" required>
+</div>
+
+<button class="auth-btn">
+Login
+</button>
+
+</form>
+
+<div class="switch" id="forgot">
+Forgot password?
+</div>
+
+<div class="switch" id="showRegister">
+Create a new account
+</div>
+
+</div>
+
+
+<!-- REGISTER -->
+
+<div id="registerPage" style="display:none">
+
+<h2>Create Account</h2>
+
+<div class="auth-desc">
+Join Atik Smart Lamp
+</div>
+
+<div class="error" id="registerError"></div>
+
+<form id="registerForm">
+
+<div class="input">
+<label>Name</label>
+<input id="name" placeholder="Your name" maxlength="30" required>
+</div>
+
+<div class="input">
+<label>Email</label>
+<input id="email" type="email" placeholder="your@gmail.com" required>
+</div>
+
+<div class="input">
+<label>Password</label>
+<input id="password" type="password" minlength="6" placeholder="Minimum 6 characters" required>
+</div>
+
+<div class="input">
+<label>Confirm Password</label>
+<input id="confirm" type="password" placeholder="Repeat password" required>
+</div>
+
+<button class="auth-btn">
+Create Account
+</button>
+
+</form>
+
+<div class="switch" id="showLogin">
+Already have an account? Login
+</div>
+
+</div>
+
+</div>
+</div>
+
+
+<!-- MAIN -->
+
+<div class="header">
+
+<div class="brand">
+ATIK <span>SMART LAMP</span>
+</div>
+
+<div class="user" id="userName">
+Guest
+</div>
+
+</div>
+
+
+<div class="hero">
+
+<h1>Smart Light Control</h1>
+
+<p>
+Control the lamp together in real-time
+</p>
+
+</div>
+
+
+<div class="room" id="room">
+
+<div class="status" id="status">
+● OFF
+</div>
+
+<div class="room-glow" id="roomGlow"></div>
+
+<div class="lamp">
+
+<div class="shade"></div>
+
+<div class="stem"></div>
+
+<div class="base"></div>
+
+<div class="pull" id="pull"></div>
+
+</div>
+
+</div>
+
+
+<div class="controls">
+
+<button class="power" id="power">
+TURN ON
+</button>
+
+
+<div class="control-title">
+Brightness
+</div>
+
+<input
+id="brightness"
+type="range"
+min="10"
+max="100"
+value="100">
+
+
+<div class="control-title">
+Light Color
+</div>
+
+<div class="colors">
+
+<div class="color yellow active" data-color="#ffd45c"></div>
+
+<div class="color white" data-color="#ffffff"></div>
+
+<div class="color blue" data-color="#5ca8ff"></div>
+
+<div class="color purple" data-color="#b46cff"></div>
+
+<div class="color red" data-color="#ff6363"></div>
+
+<div class="color green" data-color="#62ff9b"></div>
+
+</div>
+
+
+<div class="info">
+
+<span id="brightnessText">
+Brightness: 100%
+</span>
+
+<span id="lastUpdate">
+Waiting...
+</span>
+
+</div>
+
+</div>
+
+
+<div class="footer">
+
+Everyone controls the same lamp 💡
+
+<div class="creator">
+Designed & Created by Atik ❤️
+</div>
+
+<button class="logout" id="logout">
+Logout
+</button>
+
+</div>
+
+</div>
+
+
+<script type="module">
+
+import{
+initializeApp
+}
+from
+"https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+
+import{
+getAuth,
+createUserWithEmailAndPassword,
+signInWithEmailAndPassword,
+onAuthStateChanged,
+signOut,
+sendPasswordResetEmail
+}
+from
+"https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
+import{
+getDatabase,
+ref,
+set,
+onValue
+}
+from
+"https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+
+
+/* FIREBASE */
+
+const firebaseConfig={
+
+apiKey:"AIzaSyDfr7IjNrILysYlEjXhGHQ18FJyKEbqez4",
+
+authDomain:"atik-lamp.firebaseapp.com",
+
+databaseURL:"https://atik-lamp-default-rtdb.firebaseio.com",
+
+projectId:"atik-lamp",
+
+storageBucket:"atik-lamp.firebasestorage.app",
+
+messagingSenderId:"812980538364",
+
+appId:"1:812980538364:web:51b9376fc67bde2cc18079"
+
+};
+
+
+const firebaseApp=
+initializeApp(firebaseConfig);
+
+const auth=
+getAuth(firebaseApp);
+
+const db=
+getDatabase(firebaseApp);
+
+
+/* ELEMENTS */
+
+const app=
+document.getElementById("app");
+
+const authBox=
+document.getElementById("auth");
+
+const room=
+document.getElementById("room");
+
+const status=
+document.getElementById("status");
+
+const power=
+document.getElementById("power");
+
+const brightness=
+document.getElementById("brightness");
+
+const brightnessText=
+document.getElementById("brightnessText");
+
+const lastUpdate=
+document.getElementById("lastUpdate");
+
+const userName=
+document.getElementById("userName");
+
+const roomGlow=
+document.getElementById("roomGlow");
+
+
+let lampData={
+on:false,
+color:"#ffd45c",
+brightness:100
+};
+
+
+/* ERROR */
+
+function error(id,text){
+
+const el=
+document.getElementById(id);
+
+el.textContent=text;
+
+el.style.display="block";
+
+}
+
+
+/* LOGIN */
+
+document
+.getElementById("loginForm")
+.onsubmit=async e=>{
+
+e.preventDefault();
+
+try{
+
+await signInWithEmailAndPassword(
+
+auth,
+
+document.getElementById("loginEmail").value.trim(),
+
+document.getElementById("loginPassword").value
+
+);
+
+}
+
+catch(e){
+
+error(
+"loginError",
+"Email or password is incorrect."
+);
+
+}
+
+};
+
+
+/* REGISTER */
+
+document
+.getElementById("registerForm")
+.onsubmit=async e=>{
+
+e.preventDefault();
+
+const name=
+document.getElementById("name").value.trim();
+
+const email=
+document.getElementById("email").value.trim();
+
+const password=
+document.getElementById("password").value;
+
+const confirm=
+document.getElementById("confirm").value;
+
+
+if(password!==confirm){
+
+error(
+"registerError",
+"Passwords do not match."
+);
+
+return;
+
+}
+
+
+try{
+
+const result=
+await createUserWithEmailAndPassword(
+auth,
+email,
+password
+);
+
+
+await set(
+
+ref(
+db,
+"users/"+result.user.uid
+),
+
+{
+name:name,
+email:email
+}
+
+);
+
+}
+
+catch(e){
+
+error(
+"registerError",
+"Could not create account."
+);
+
+}
+
+};
+
+
+/* SWITCH */
+
+document
+.getElementById("showRegister")
+.onclick=()=>{
+
+document.getElementById("loginPage")
+.style.display="none";
+
+document.getElementById("registerPage")
+.style.display="block";
+
+};
+
+
+document
+.getElementById("showLogin")
+.onclick=()=>{
+
+document.getElementById("registerPage")
+.style.display="none";
+
+document.getElementById("loginPage")
+.style.display="block";
+
+};
+
+
+/* FORGOT */
+
+document
+.getElementById("forgot")
+.onclick=async()=>{
+
+const email=
+document.getElementById("loginEmail")
+.value.trim();
+
+if(!email){
+
+alert("Enter your email first.");
+
+return;
+
+}
+
+try{
+
+await sendPasswordResetEmail(
+auth,
+email
+);
+
+alert(
+"Password reset email sent."
+);
+
+}
+
+catch(e){
+
+alert(
+"Could not send reset email."
+);
+
+}
+
+};
+
+
+/* AUTH */
+
+onAuthStateChanged(
+auth,
+async user=>{
+
+if(!user){
+
+authBox.classList.remove("hide");
+
+return;
+
+}
+
+authBox.classList.add("hide");
+
+
+onValue(
+
+ref(
+db,
+"users/"+user.uid
+),
+
+snapshot=>{
+
+const data=
+snapshot.val();
+
+userName.textContent=
+data?.name || user.email;
+
+}
+
+);
+
+loadLamp();
+
+}
+
+);
+
+
+/* LOAD LAMP */
+
+function loadLamp(){
+
+onValue(
+
+ref(db,"lamp"),
+
+snapshot=>{
+
+const data=
+snapshot.val() || {};
+
+lampData={
+on:data.on===true,
+color:data.color || "#ffd45c",
+brightness:data.brightness || 100
+};
+
+updateUI();
+
+}
+
+);
+
+}
+
+
+/* UPDATE UI */
+
+function updateUI(){
+
+const color=
+lampData.color;
+
+const bright=
+lampData.brightness;
+
+
+app.style.setProperty(
+"--lamp",
+color
+);
+
+room.style.setProperty(
+"--lamp",
+color
+);
+
+brightness.value=
+bright;
+
+brightnessText.textContent=
+"Brightness: "+bright+"%";
+
+
+if(lampData.on){
+
+room.classList.add("on");
+
+power.textContent=
+"TURN OFF";
+
+status.textContent=
+"● ON";
+
+roomGlow.style.background=
+`radial-gradient(circle,
+${color}55,
+${color}18,
+transparent 70%)`;
+
+}else{
+
+room.classList.remove("on");
+
+power.textContent=
+"TURN ON";
+
+status.textContent=
+"● OFF";
+
+}
+
+}
+
+
+/* POWER */
+
+power.onclick=async()=>{
+
+await set(
+
+ref(db,"lamp"),
+
+{
+...lampData,
+on:!lampData.on
+}
+
+);
+
+};
+
+
+/* PULL STRING */
+
+document
+.getElementById("pull")
+.onclick=()=>{
+
+power.click();
+
+};
+
+
+/* BRIGHTNESS */
+
+brightness.oninput=async()=>{
+
+const value=
+Number(brightness.value);
+
+brightnessText.textContent=
+"Brightness: "+value+"%";
+
+
+await set(
+
+ref(db,"lamp"),
+
+{
+...lampData,
+brightness:value
+}
+
+);
+
+};
+
+
+/* COLORS */
+
+document
+.querySelectorAll(".color")
+.forEach(button=>{
+
+button.onclick=async()=>{
+
+document
+.querySelectorAll(".color")
+.forEach(x=>
+x.classList.remove("active")
+);
+
+button.classList.add("active");
+
+const color=
+button.dataset.color;
+
+
+await set(
+
+ref(db,"lamp"),
+
+{
+...lampData,
+color:color
+}
+
+);
+
+};
+
+});
+
+
+/* LOGOUT */
+
+document
+.getElementById("logout")
+.onclick=()=>{
+
+signOut(auth);
+
+};
+
+</script>
+
+</body>
+</html>
