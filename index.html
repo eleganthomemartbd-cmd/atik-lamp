@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Invoice Generator Pro</title>
+    <!-- HTML to Canvas Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'SolaimanLipi', Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #eef2f5;
+            padding-bottom: 30px;
+        }
+
+        .app-bar {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background 0.3s;
+        }
+
+        .tab-bar {
+            display: flex;
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .container {
+            padding: 12px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            font-size: 16px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 6px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            background: #fff;
+        }
+
+        .input-with-btn {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .product-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .product-row input {
+            padding: 8px;
+            font-size: 13px;
+        }
+
+        .btn-remove {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-primary { background-color: var(--primary-color); }
+        .btn-pdf { background-color: #dc2626; }
+        .btn-add { background-color: #059669; color: #fff; margin-top: 5px; padding: 8px 12px; font-size: 13px; border: none; border-radius: 6px; cursor: pointer; }
+
+        .logo-preview-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+            margin-top: 5px;
+        }
+
+        /* ইনভয়েস কার্ড স্টাইল */
+        .invoice-wrapper {
+            overflow-x: auto;
+        }
+
+        .invoice-card {
+            width: 750px;
+            background: #fff;
+            padding: 30px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .company-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .company-logo {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+
+        .company-details h2 {
+            color: var(--primary-color);
+            font-size: 18px;
+        }
+
+        .company-details p {
+            font-size: 12px;
+            color: #333;
+            line-height: 1.3;
+        }
+
+        .invoice-title h1 {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .meta-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+
+        .meta-box-left {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 12px;
+            font-weight: bold;
+            font-size: 13px;
+            border-radius: 3px;
+        }
+
+        .meta-box-right {
+            text-align: right;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .customer-table, .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        .customer-table td {
+            padding: 5px 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .customer-table td:first-child {
+            font-weight: bold;
+            width: 110px;
+        }
+
+        .product-table th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 6px;
+            font-size: 13px;
+            border: 1px solid var(--primary-color);
+        }
+
+        .product-table td {
+            padding: 8px;
+            border: 1px solid #ccc;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .summary-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            position: relative;
+        }
+
+        .summary-left { width: 55%; font-size: 13px; }
+        .summary-right { width: 40%; }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px dashed #ccc;
+            font-size: 13px;
+        }
+
+        .summary-row.total {
+            font-weight: bold;
+            font-size: 15px;
+            border-bottom: 2px solid #000;
+        }
+
+        .stamp-badge {
+            display: inline-block;
+            padding: 6px 18px;
+            font-size: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            border-radius: 8px;
+            border: 3px dashed;
+            transform: rotate(-10deg);
+            margin-top: 15px;
+            letter-spacing: 2px;
+        }
+
+        .stamp-badge.paid {
+            color: #10b981;
+            border-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.08);
+        }
+
+        .stamp-badge.unpaid {
+            color: #ef4444;
+            border-color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.08);
+        }
+
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .sig-box {
+            width: 180px;
+            border-top: 1px solid #000;
+            padding-top: 4px;
+            font-size: 13px;
+        }
+
+        @media print {
+            .app-bar, .tab-bar, .admin-panel, .btn-group {
+                display: none !important;
+            }
+            body { background: #fff; padding: 0; }
+            .container { max-width: 100%; padding: 0; }
+            .tab-content { display: block !important; }
+            .invoice-wrapper { overflow: visible; }
+            .invoice-card { width: 100%; border: none; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-bar">Invoice Generator Pro</div>
+
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('inputTab', 0)">ইনভয়েস তৈরি</button>
+        <button class="tab-btn" onclick="switchTab('previewTab', 1)">ভিউ ইনভয়েস</button>
+        <button class="tab-btn" onclick="switchTab('settingsTab', 2)">সেটিংস ⚙️</button>
+    </div>
+
+    <div class="container">
+        
+        <!-- ১. ইনপুট ট্যাব -->
+        <div id="inputTab" class="tab-content active">
+            <div class="card">
+                <h3>ইনভয়েস ও কাস্টমার তথ্য</h3>
+                <div class="form-group">
+                    <label>ইনভয়েস নম্বর (অটো জেনারেটেড)</label>
+                    <div class="input-with-btn">
+                        <input type="text" id="inNum" value="" oninput="updateInvoice()">
+                        <button class="btn-small" onclick="generateAutoInvoiceNumber()">নতুন নম্বর</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>তারিখ (অটো বর্তমান তারিখ)</label>
+                    <input type="text" id="inDate" value="" oninput="updateInvoice()">
+                </div>
+                <div class="form-group">
+                    <label>কাস্টমারের নাম</label>
+                    <input type="text" id="inCustName" value="ST Tower Bengal Builders Limited" oninput="updateInvoice()">
+                </div>
+                <div class="form-group">
+                    <label>মোবাইল</label>
+                    <input type="text" id="inCustPhone" value="01738431016" oninput="updateInvoice()">
+                </div>
+                <div class="form-group">
+                    <label>ইমেইল</label>
+                    <input type="email" id="inCustEmail" value="customer@example.com" oninput="updateInvoice()">
+                </div>
+                <div class="form-group">
+                    <label>ঠিকানা</label>
+                    <input type="text" id="inCustAddress" value="Central Road, Payra Chottor, Rangpur" oninput="updateInvoice()">
+                </div>
+                <div class="form-group">
+                    <label>পেমেন্ট স্ট্যাটাস (Payment Status)</label>
+                    <select id="inPayStatus" onchange="updateInvoice()">
+                        <option value="PAID">PAID (পরিশোধিত)</option>
+                        <option value="UNPAID">UNPAID (অপরিশোধিত)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>পণ্যের বিবরণ (একাধিক যুক্ত করুন)</h3>
+                <div id="productInputsContainer"></div>
+                <button class="btn-add" onclick="addProductRow()">+ নতুন পণ্য যুক্ত করুন</button>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>কথায় (স্বয়ংক্রিয় গণনাকৃত):</label>
+                    <input type="text" id="inInWords" value="" readonly style="background: #f9fafb;">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="switchTab('previewTab', 1)">ইনভয়েস দেখুন</button>
+        </div>
+
+        <!-- ২. ইনভয়েস ভিউ ট্যাব -->
+        <div id="previewTab" class="tab-content">
+            <div class="btn-group" style="margin-bottom: 12px;">
+                <button class="btn btn-pdf" onclick="triggerPrint()">📄 PDF সেভ / প্রিন্ট করুন</button>
+            </div>
+
+            <div class="invoice-wrapper">
+                <div class="invoice-card" id="captureArea">
+                    <div class="invoice-header">
+                        <div class="company-info">
+                            <img src="https://via.placeholder.com/85" id="outLogo" class="company-logo" alt="Logo">
+                            <div class="company-details">
+                                <h2 id="outCompName">সামিউল এন্টারপ্রাইজ</h2>
+                                <p id="outCompAddress">পায়রা চত্বর, রংপুর | ফোন: ০১৯২৫২৩৪২৪৪</p>
+                                <p>ইমেইল: <span id="outCompEmail">ahat8950@gmail.com</span></p>
+                            </div>
+                        </div>
+                        <div class="invoice-title">
+                            <h1>বিক্রয় ইনভয়েস</h1>
+                        </div>
+                    </div>
+
+                    <div class="meta-info">
+                        <div class="meta-box-left">
+                            ইনভয়েস নম্বর: <span id="outNum"></span>
+                        </div>
+                        <div class="meta-box-right">
+                            ইনভয়েস তারিখ: <span id="outDate"></span>
+                        </div>
+                    </div>
+
+                    <table class="customer-table">
+                        <tr>
+                            <td>কাস্টমারের নাম:</td>
+                            <td id="outCustName">ST Tower Bengal Builders Limited</td>
+                        </tr>
+                        <tr>
+                            <td>মোবাইল:</td>
+                            <td id="outCustPhone">01738431016</td>
+                        </tr>
+                        <tr>
+                            <td>ইমেইল:</td>
+                            <td id="outCustEmail">customer@example.com</td>
+                        </tr>
+                        <tr>
+                            <td>ঠিকানা:</td>
+                            <td id="outCustAddress">Central Road, Payra Chottor, Rangpur</td>
+                        </tr>
+                    </table>
+
+                    <table class="product-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 8%;">ক্রম</th>
+                                <th style="width: 42%;">পণ্যের নাম</th>
+                                <th style="width: 15%;">পরিমাণ</th>
+                                <th style="width: 15%;">মূল্য (৳)</th>
+                                <th style="width: 20%;">মোট মূল্য (৳)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="outProductTableBody"></tbody>
+                    </table>
+
+                    <div class="summary-section">
+                        <div class="summary-left">
+                            <div><strong>পেমেন্টের মাধ্যম:</strong> চেক / ক্যাশ</div>
+                            <div style="margin-top: 10px;">
+                                <strong>কথায়:</strong> <span id="outInWords"></span>
+                            </div>
+                            <div id="outStamp" class="stamp-badge paid">PAID</div>
+                        </div>
+                        
+                        <div class="summary-right">
+                            <div class="summary-row total">
+                                <span>মোট মূল্য:</span>
+                                <span id="outSummaryTotal">৳ ০.০০</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>প্রদত্ত পরিমাণ:</span>
+                                <span id="outPaid">৳ ০.০০</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="signature-section">
+                        <div class="sig-box">ক্রেতার স্বাক্ষর</div>
+                        <div class="sig-box">অনুমোদনকারীর স্বাক্ষর</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ৩. সেটিংস ট্যাব -->
+        <div id="settingsTab" class="tab-content">
+            <div class="card">
+                <h3>কোম্পানির ফিক্সড সেটিংস ⚙️</h3>
+
+                <div class="form-group">
+                    <label>অ্যাপ ও ইনভয়েস থিম কালার</label>
+                    <select id="setThemeColor" onchange="changeThemeColor(this.value)">
+                        <option value="#1e3a8a">নীল (Blue Theme)</option>
+                        <option value="#059669">সবুজ (Green Theme)</option>
+                        <option value="#dc2626">লাল (Red Theme)</option>
+                        <option value="#1f2937">ডার্ক গ্রেই (Dark Theme)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>কোম্পানির লোগো URL</label>
+                    <input type="text" id="setLogoUrl" value="https://via.placeholder.com/85" oninput="previewLogoFromUrl()">
+                    <img src="https://via.placeholder.com/85" id="setLogoPreview" class="logo-preview-img" alt="Logo Preview">
+                </div>
+
+                <div class="form-group">
+                    <label>গ্যালারি থেকেও লোগো সিলেক্ট করতে পারেন</label>
+                    <input type="file" id="setLogoFile" accept="image/*" onchange="previewSelectedLogo(event)">
+                </div>
+
+                <div class="form-group">
+                    <label>কোম্পানির নাম</label>
+                    <input type="text" id="setCompName" value="সামিউল এন্টারপ্রাইজ">
+                </div>
+                <div class="form-group">
+                    <label>কোম্পানির ইমেইল</label>
+                    <input type="email" id="setCompEmail" value="ahat8950@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label>কোম্পানির ঠিকানা & ফোন</label>
+                    <input type="text" id="setCompAddress" value="পায়রা চত্বর, রংপুর | ফোন: ০১৯২৫২৩৪২৪৪">
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="saveCompanySettings()">সেটিংস স্থায়ীভাবে সেভ করুন 💾</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentCompanyLogo = "https://via.placeholder.com/85";
+
+        function toBanglaDigit(num) {
+            const eng = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            const bang = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+            return String(num).replace(/\d/g, d => bang[eng.indexOf(d)]);
+        }
+
+        // দশমিক ও পয়সা সহ সঠিক বাংলায় টাকার হিসাব
+        function numToBanglaWords(amount) {
+            let totalAmount = parseFloat(amount) || 0;
+            if (totalAmount === 0) return "শূন্য টাকা মাত্র।";
+
+            let taka = Math.floor(totalAmount);
+            let poisha = Math.round((totalAmount - taka) * 100);
+
+            const ones = ["", "এক", "দুই", "তিন", "চার", "পাঁচ", "ছয়", "সাত", "আট", "নয়", "দশ", 
+                          "এগারো", "বারো", "তেরো", "চৌদ্দ", "পনেরো", "ষোলো", "সতেরো", "আঠারো" ,"উনিশ", "বিশ",
+                          "একুশ", "বাইশ", "তেইশ", "চব্বিশ", "পঁচিশ", "ছাব্বিশ", "সাতাশ", "আটাশ", "উনত্রিশ", "ত্রিশ",
+                          "একত্রিশ", "বত্রিশ", "তেত্রিশ", "চৌত্রিশ", "পঁয়ত্রিশ", "ছত্রিশ", "সাইত্রিশ", "আটত্রিশ", "উনচল্লিশ", "চল্লিশ",
+                          "একচল্লিশ", "৪২", "৪৩", "৪৪", "৪৫", "৪৬", "৪৭", "৪৮", "৪৯", "পঞ্চাশ",
+                          "একান্ন", "বায়ান্ন", "তিপ্পান্ন", "চৌয়ান্ন", "পঞ্চান্ন", "ছাপ্পান্ন", "সাতান্ন", "আটান্ন", "উনষাট", "ষাট",
+                          "একষট্টি", "বাষট্টি", "তেষট্টি", "চৌষট্টি", "পঁয়ষট্টি", "ছয়ষট্টি", "সাতষট্টি", "আটষট্টি", "উনসত্তুর", "সত্তর",
+                          "একাত্তর", "বাহাত্তর", "তিয়াত্তর", "চৌহাত্তর", "পঁচাত্তর", "ছিয়াত্তর", "সাতাত্তর", "আটাত্তর", "উনাশি", "আশি",
+                          "একাশি", "বিরাশি", "তিরাশি", "চুরাশি", "পঁচাশির", "ছিয়াশি", "সাতাসি", "অষ্টাসি", "উননব্বই", "নব্বই",
+                          "একানব্বই", "বানব্বই", "তিনানব্বই", "চুরানব্বই", "পঁচানব্বই", "ছিয়ানব্বই", "সাতানব্বই", "আটানব্বই", "নিরানব্বই"];
+
+            function convertPart(n) {
+                let str = "";
+                if (n >= 10000000) {
+                    str += convertPart(Math.floor(n / 10000000)) + " কোটি ";
+                    n %= 10000000;
+                }
+                if (n >= 100000) {
+                    str += ones[Math.floor(n / 100000)] + " লক্ষ ";
+                    n %= 100000;
+                }
+                if (n >= 1000) {
+                    str += ones[Math.floor(n / 1000)] + " হাজার ";
+                    n %= 1000;
+                }
+                if (n >= 100) {
+                    str += ones[Math.floor(n / 100)] + " শত ";
+                    n %= 100;
+                }
+                if (n > 0) {
+                    str += ones[n] + " ";
+                }
+                return str;
+            }
+
+            let result = "";
+            if (taka > 0) {
+                result += convertPart(taka).trim() + " টাকা ";
+            }
+            if (poisha > 0) {
+                result += convertPart(poisha).trim() + " পয়সা ";
+            }
+
+            return result.trim() + " মাত্র।";
+        }
+
+        function addProductRow(name = '', qty = 1, rate = 0) {
+            const container = document.getElementById('productInputsContainer');
+            const rowId = 'prod_row_' + Date.now() + Math.random().toString(36).substr(2, 4);
+
+            const div = document.createElement('div');
+            div.className = 'product-row';
+            div.id = rowId;
+            div.innerHTML = `
+                <input type="text" placeholder="পণ্যের নাম" class="p-name" value="${name}" style="flex: 2;" oninput="calculateTotal()">
+                <input type="number" placeholder="পরিমাণ" class="p-qty" value="${qty}" step="any" style="flex: 1;" oninput="calculateTotal()">
+                <input type="number" placeholder="মূল্য" class="p-rate" value="${rate}" step="any" style="flex: 1;" oninput="calculateTotal()">
+                <button class="btn-remove" onclick="removeProductRow('${rowId}')">🗑️</button>
+            `;
+            container.appendChild(div);
+            calculateTotal();
+        }
+
+        function removeProductRow(rowId) {
+            const rows = document.querySelectorAll('.product-row');
+            if(rows.length > 1) {
+                document.getElementById(rowId).remove();
+                calculateTotal();
+            } else {
+                alert("কমপক্ষে একটি পণ্য থাকা আবশ্যক!");
+            }
+        }
+
+        function loadCompanySettings() {
+            const savedName = localStorage.getItem('cfg_comp_name') || "সামিউল এন্টারপ্রাইজ";
+            const savedEmail = localStorage.getItem('cfg_comp_email') || "ahat8950@gmail.com";
+            const savedAddr = localStorage.getItem('cfg_comp_addr') || "পায়রা চত্বর, রংপুর | ফোন: ০১৯২৫২৩৪২৪৪";
+            const savedLogo = localStorage.getItem('cfg_comp_logo') || "https://via.placeholder.com/85";
+            const savedColor = localStorage.getItem('cfg_comp_color') || "#1e3a8a";
+
+            document.getElementById('setCompName').value = savedName;
+            document.getElementById('setCompEmail').value = savedEmail;
+            document.getElementById('setCompAddress').value = savedAddr;
+            document.getElementById('setLogoUrl').value = savedLogo;
+            document.getElementById('setThemeColor').value = savedColor;
+            
+            currentCompanyLogo = savedLogo;
+            document.getElementById('setLogoPreview').src = savedLogo;
+
+            changeThemeColor(savedColor);
+            applySettingsToInvoice();
+        }
+
+        function changeThemeColor(color) {
+            document.documentElement.style.setProperty('--primary-color', color);
+        }
+
+        function saveCompanySettings() {
+            const selectedColor = document.getElementById('setThemeColor').value;
+            localStorage.setItem('cfg_comp_name', document.getElementById('setCompName').value);
+            localStorage.setItem('cfg_comp_email', document.getElementById('setCompEmail').value);
+            localStorage.setItem('cfg_comp_addr', document.getElementById('setCompAddress').value);
+            localStorage.setItem('cfg_comp_logo', currentCompanyLogo);
+            localStorage.setItem('cfg_comp_color', selectedColor);
+
+            applySettingsToInvoice();
+            alert("কোম্পানির সেটিংস স্থায়ীভাবে সেভ করা হয়েছে!");
+            switchTab('inputTab', 0);
+        }
+
+        function applySettingsToInvoice() {
+            document.getElementById('outCompName').innerText = document.getElementById('setCompName').value;
+            document.getElementById('outCompEmail').innerText = document.getElementById('setCompEmail').value;
+            document.getElementById('outCompAddress').innerText = document.getElementById('setCompAddress').value;
+            document.getElementById('outLogo').src = currentCompanyLogo;
+        }
+
+        function previewLogoFromUrl() {
+            const url = document.getElementById('setLogoUrl').value;
+            currentCompanyLogo = url;
+            document.getElementById('setLogoPreview').src = url;
+        }
+
+        function previewSelectedLogo(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentCompanyLogo = e.target.result;
+                    document.getElementById('setLogoUrl').value = currentCompanyLogo;
+                    document.getElementById('setLogoPreview').src = currentCompanyLogo;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function setAutoCurrentDate() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            
+            let dateString = `${day}/${month}/${year}`;
+            document.getElementById('inDate').value = toBanglaDigit(dateString);
+        }
+
+        function generateAutoInvoiceNumber() {
+            const randomNum = Math.floor(100000000000 + Math.random() * 900000000000);
+            document.getElementById('inNum').value = randomNum;
+            updateInvoice();
+        }
+
+        function switchTab(tabId, btnIndex) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn')[btnIndex].classList.add('active');
+        }
+
+        function calculateTotal() {
+            const rows = document.querySelectorAll('.product-row');
+            let grandTotal = 0;
+            let tbodyHtml = '';
+
+            rows.forEach((row, index) => {
+                const name = row.querySelector('.p-name').value || '-';
+                const qty = parseFloat(row.querySelector('.p-qty').value) || 0;
+                const rate = parseFloat(row.querySelector('.p-rate').value) || 0;
+                const rowTotal = qty * rate;
+                grandTotal += rowTotal;
+
+                tbodyHtml += `
+                    <tr>
+                        <td>${toBanglaDigit(index + 1)}</td>
+                        <td style="text-align: left;">${name}</td>
+                        <td>${toBanglaDigit(qty)}</td>
+                        <td>${toBanglaDigit(rate.toFixed(2))}</td>
+                        <td>${toBanglaDigit(rowTotal.toFixed(2))}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('outProductTableBody').innerHTML = tbodyHtml;
+
+            const bngTotalStr = '৳ ' + toBanglaDigit(grandTotal.toFixed(2));
+            document.getElementById('outSummaryTotal').innerText = bngTotalStr;
+            document.getElementById('outPaid').innerText = bngTotalStr;
+
+            const inWords = numToBanglaWords(grandTotal);
+            document.getElementById('inInWords').value = inWords;
+            document.getElementById('outInWords').innerText = inWords;
+
+            updateInvoice();
+        }
+
+        function updateInvoice() {
+            document.getElementById('outNum').innerText = document.getElementById('inNum').value;
+            document.getElementById('outDate').innerText = document.getElementById('inDate').value;
+            
+            document.getElementById('outCustName').innerText = document.getElementById('inCustName').value;
+            document.getElementById('outCustPhone').innerText = document.getElementById('inCustPhone').value;
+            document.getElementById('outCustEmail').innerText = document.getElementById('inCustEmail').value;
+            document.getElementById('outCustAddress').innerText = document.getElementById('inCustAddress').value;
+
+            const status = document.getElementById('inPayStatus').value;
+            const stampEl = document.getElementById('outStamp');
+            stampEl.innerText = status;
+            if(status === 'PAID') {
+                stampEl.className = 'stamp-badge paid';
+            } else {
+                stampEl.className = 'stamp-badge unpaid';
+            }
+        }
+
+        // সিস্টেমেটিক ১০০% সফল PDF/প্রিন্ট ফাংশন
+        function triggerPrint() {
+            window.print();
+        }
+
+        window.onload = function() {
+            loadCompanySettings();
+            setAutoCurrentDate();
+            generateAutoInvoiceNumber();
+            addProductRow('১ নাম্বার ইট K.S.B', 10200, 11.50);
+        };
+    </script>
+</body>
+</html>
